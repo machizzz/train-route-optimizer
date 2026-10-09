@@ -8,11 +8,113 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+<style>
+    
+    body {
+        background: linear-gradient(135deg, #f6f8fd 0%, #f1f5f9 100%);
+        min-height: 100vh;
+        color: #2c3e50;
+    }
+
+    
+    h1, h2 {
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #1e293b;
+    }
+
+    
+    .card {
+        border: none !important;
+        border-radius: 24px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04) !important;
+        background: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(10px);
+    }
+
+    
+    .form-select {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        box-shadow: none !important;
+        transition: all 0.3s ease;
+    }
+    
+    .form-select:focus {
+        border-color: #3b82f6;
+        background-color: #f8fafc;
+    }
+
+    
+    .btn {
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-outline-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+        transform: translateY(-2px);
+    }
+
+    
+    .table-responsive {
+        background: white;
+        border-radius: 20px;
+        padding: 10px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    }
+
+    
+    table.table {
+        margin-bottom: 0;
+        border-color: #f1f5f9;
+    }
+    
+    .table-dark, .table-secondary {
+        background-color: transparent !important;
+    }
+    
+    .table-dark th, .table-secondary th {
+        background-color: #f8fafc !important;
+        color: #64748b !important;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .badge {
+        padding: 0.6em 1em;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+</style>
+
 </head>
 <div class="container mt-5">
     <h1 class="mb-4">Zaplanuj podróż</h1>
 
-    <!-- Formularz w stylu karty -->
     <div class="card shadow-sm mb-5">
         <div class="card-body">
 <form action="" method="GET" class="row g-3 align-items-end">
@@ -46,13 +148,13 @@
         </div>
     </div>
 
-    <!-- Tabela wyników -->
     <?php if ($routes !== null): ?>
-        <h2 class="mb-3">Wyniki wyszukiwania:</h2>
         
         <?php if (count($routes) > 0): ?>
+
+            <h2 class="mb-3">Bezpośrednie trasy:</h2>
             <div class="table-responsive">
-                <table class="table table-hover table-bordered shadow-sm">
+                <table class="table table-hover align-middle text-center">
                     <thead class="table-dark">
                         <tr>
                             <th>Stacja początkowa</th>
@@ -75,11 +177,50 @@
                     </tbody>
                 </table>
             </div>
+
+        <?php elseif ($transferRoutes !== null && count($transferRoutes) > 0): ?>
+
+            <h2 class="mb-3">Trasy z jedną przesiadką:</h2>
+<div class="table-responsive">
+                <table class="table table-hover align-middle text-center">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Start</th>
+                            <th>Odjazd (Etap 1)</th>
+                            <th>Przyjazd (Etap 1)</th>
+                            <th>Stacja przesiadkowa</th>
+                            <th>Czas na przesiadkę</th>
+                            <th>Odjazd (Etap 2)</th>
+                            <th>Przyjazd (Etap 2)</th>
+                            <th>Koniec</th>
+                            <th>Łączna cena</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($transferRoutes as $route): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($route['start_station_name']) ?></td>
+                                <td><?= htmlspecialchars($route['leg1_departure']) ?></td>
+                                <td><?= htmlspecialchars($route['leg1_arrival']) ?></td>
+                                <td><strong><?= htmlspecialchars($route['transfer_station_name']) ?></strong></td>
+                                <td><span class="badge bg-info text-dark fs-6"><?= htmlspecialchars($route['transfer_time']) ?></span></td>
+                                <td><?= htmlspecialchars($route['leg2_departure']) ?></td>
+                                <td><?= htmlspecialchars($route['leg2_arrival']) ?></td>
+                                <td><?= htmlspecialchars($route['end_station_name']) ?></td>
+                                <td><strong><?= htmlspecialchars($route['total_price']) ?> PLN</strong></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
         <?php else: ?>
+            <!-- Brak jakichkolwiek tras -->
             <div class="alert alert-warning" role="alert">
-                Niestety, nie znaleziono żadnych bezpośrednich połączeń na wybranej trasie.
+                Niestety, nie znaleziono żadnych połączeń (ani bezpośrednich, ani z przesiadką) na wybranej trasie.
             </div>
         <?php endif; ?>
+
     <?php endif; ?>
 </div>
 </html>
