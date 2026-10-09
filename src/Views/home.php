@@ -117,107 +117,113 @@
 
     <div class="card shadow-sm mb-5">
         <div class="card-body">
-<form action="" method="GET" class="row g-3 align-items-end">
-    <div class="col-md-4">
-        <label for="start" class="form-label">Wybierz stację początkową:</label>
-        <select name="start" id="start" class="form-select">
-            <?php foreach ($stations as $station): ?>
-                <option value="<?= $station['id'] ?>" <?= (isset($_GET['start']) && $_GET['start'] == $station['id']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($station['name']) ?> (<?= htmlspecialchars($station['country']) ?>)
-                </option>
-            <?php endforeach; ?>
-        </select>
+<form action="" method="GET" class="row g-3">
+
+    <div id="stops-container" class="col-12">
+        
+
+        <div class="row g-3 align-items-end mb-2 stop-row">
+            <div class="col-md-10">
+                <label class="form-label stop-label">Przystanek 1:</label>
+                <select name="stops[]" class="form-select">
+                    <?php foreach ($stations as $station): ?>
+                        <option value="<?= $station['id'] ?>"><?= htmlspecialchars($station['name']) ?> (<?= htmlspecialchars($station['country']) ?>)</option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="row g-3 align-items-end mb-2 stop-row">
+            <div class="col-md-10">
+                <label class="form-label stop-label">Przystanek 2:</label>
+                <select name="stops[]" class="form-select">
+                    <?php foreach ($stations as $station): ?>
+                        <option value="<?= $station['id'] ?>"><?= htmlspecialchars($station['name']) ?> (<?= htmlspecialchars($station['country']) ?>)</option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        
     </div>
 
-    <div class="col-md-4">
-        <label for="end" class="form-label">Wybierz stację końcową:</label>
-        <select name="end" id="end" class="form-select">
-            <?php foreach ($stations as $station): ?>
-                <option value="<?= $station['id'] ?>" <?= (isset($_GET['end']) && $_GET['end'] == $station['id']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($station['name']) ?> (<?= htmlspecialchars($station['country']) ?>)
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
 
-    <div class="col-md-4 d-flex gap-2">
-        <button type="submit" class="btn btn-primary w-100">Szukaj tras</button>
-        <a href="index.php" class="btn btn-outline-secondary w-100">Wyczyść</a>
+    <div class="col-12 mt-4">
+        <div class="d-flex gap-2">
+            <button type="button" id="add-stop-btn" class="btn btn-outline-primary">+ Dodaj kolejny przystanek</button>
+            <button type="submit" class="btn btn-primary flex-grow-1">Szukaj całej trasy</button>
+            <a href="index.php" class="btn btn-outline-secondary">Wyczyść</a>
+        </div>
     </div>
 </form>
+
+<script>
+    document.getElementById('add-stop-btn').addEventListener('click', function() {
+        const container = document.getElementById('stops-container');
+        const rows = container.getElementsByClassName('stop-row');
+        const newStopNumber = rows.length + 1;
+
+        const newRow = rows[0].cloneNode(true);
+        newRow.querySelector('.stop-label').textContent = 'Przystanek ' + newStopNumber + ':';
+        container.appendChild(newRow);
+    });
+</script>
+
         </div>
     </div>
 
-    <?php if ($routes !== null): ?>
-        
-        <?php if (count($routes) > 0): ?>
+<!-- Sekcja wyników -->
+    <?php if ($searchPerformed): ?>
+        <h2 class="mb-3 mt-4">Plan Twojej podróży:</h2>
 
-            <h2 class="mb-3">Bezpośrednie trasy:</h2>
+        <?php if (!empty($journeySegments)): ?>
             <div class="table-responsive">
-                <table class="table table-hover align-middle text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Stacja początkowa</th>
-                            <th>Stacja końcowa</th>
-                            <th>Czas odjazdu</th>
-                            <th>Czas przyjazdu</th>
-                            <th>Cena biletu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($routes as $route): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($route['start_station_name']) ?></td>
-                                <td><?= htmlspecialchars($route['end_station_name']) ?></td>
-                                <td><?= htmlspecialchars($route['departure_time']) ?></td>
-                                <td><?= htmlspecialchars($route['arrival_time']) ?></td>
-                                <td><strong><?= htmlspecialchars($route['price']) ?> PLN</strong></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-
-        <?php elseif ($transferRoutes !== null && count($transferRoutes) > 0): ?>
-
-            <h2 class="mb-3">Trasy z jedną przesiadką:</h2>
-<div class="table-responsive">
                 <table class="table table-hover align-middle text-center">
                     <thead class="table-secondary">
                         <tr>
-                            <th>Start</th>
-                            <th>Odjazd (Etap 1)</th>
-                            <th>Przyjazd (Etap 1)</th>
-                            <th>Stacja przesiadkowa</th>
-                            <th>Czas na przesiadkę</th>
-                            <th>Odjazd (Etap 2)</th>
-                            <th>Przyjazd (Etap 2)</th>
-                            <th>Koniec</th>
-                            <th>Łączna cena</th>
+                            <th>Typ odcinka</th>
+                            <th>Od</th>
+                            <th>Do</th>
+                            <th>Godziny</th>
+                            <th>Cena</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($transferRoutes as $route): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($route['start_station_name']) ?></td>
-                                <td><?= htmlspecialchars($route['leg1_departure']) ?></td>
-                                <td><?= htmlspecialchars($route['leg1_arrival']) ?></td>
-                                <td><strong><?= htmlspecialchars($route['transfer_station_name']) ?></strong></td>
-                                <td><span class="badge bg-info text-dark fs-6"><?= htmlspecialchars($route['transfer_time']) ?></span></td>
-                                <td><?= htmlspecialchars($route['leg2_departure']) ?></td>
-                                <td><?= htmlspecialchars($route['leg2_arrival']) ?></td>
-                                <td><?= htmlspecialchars($route['end_station_name']) ?></td>
-                                <td><strong><?= htmlspecialchars($route['total_price']) ?> PLN</strong></td>
-                            </tr>
+                        <?php foreach ($journeySegments as $segment): ?>
+                            <?php if ($segment['type'] === 'direct'): ?>
+                                <tr>
+                                    <td><span class="badge bg-success">Bezpośredni</span></td>
+                                    <td><?= htmlspecialchars($segment['data']['start_station_name']) ?></td>
+                                    <td><?= htmlspecialchars($segment['data']['end_station_name']) ?></td>
+                                    <td><?= htmlspecialchars($segment['data']['departure_time']) ?> → <?= htmlspecialchars($segment['data']['arrival_time']) ?></td>
+                                    <td><strong><?= htmlspecialchars($segment['data']['price']) ?> PLN</strong></td>
+                                </tr>
+                            <?php elseif ($segment['type'] === 'transfer'): ?>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">Przesiadka (<?= htmlspecialchars($segment['data']['transfer_station_name']) ?>)</span></td>
+                                    <td><?= htmlspecialchars($segment['data']['start_station_name']) ?></td>
+                                    <td><?= htmlspecialchars($segment['data']['end_station_name']) ?></td>
+                                    <td><?= htmlspecialchars($segment['data']['leg1_departure']) ?> → <?= htmlspecialchars($segment['data']['leg2_arrival']) ?></td>
+                                    <td><strong><?= htmlspecialchars($segment['data']['total_price']) ?> PLN</strong></td>
+                                </tr>
+                            <?php else: ?>
+                                <tr>
+                                    <td><span class="badge bg-danger">Brak połączenia</span></td>
+                                    <td colspan="4" class="text-muted">Nie znaleziono trasy między wybranymi przystankami w tym odcinku.</td>
+                                </tr>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+            
+            <div class="alert alert-info mt-3 text-end">
+                <h4 class="mb-0">Łączny koszt podróży: <strong><?= $totalPrice ?> PLN</strong></h4>
+            </div>
 
         <?php else: ?>
-            <!-- Brak jakichkolwiek tras -->
             <div class="alert alert-warning" role="alert">
-                Niestety, nie znaleziono żadnych połączeń (ani bezpośrednich, ani z przesiadką) na wybranej trasie.
+                Wprowadź co najmniej dwa różne przystanki, aby zaplanować podróż.
             </div>
         <?php endif; ?>
 

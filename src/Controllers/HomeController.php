@@ -11,18 +11,50 @@ class HomeController
 public function index() 
 {
     $stations = \App\Models\Station::getAll();
-    $routes = null; 
-    $transferRoutes = null; // Deklarujemy pustą zmienną na przesiadki
+    $journeySegments = [];
+    $totalPrice = 0;
+    $searchPerformed = false;
 
-    if (isset($_GET['start']) && isset($_GET['end'])) {
-        $start = $_GET['start'];
-        $end = $_GET['end'];
+    if (isset($_GET['stops']) && is_array($_GET['stops']) && count($_GET['stops']) >= 2) {
+        $stops = $_GET['stops'];
+        $searchPerformed = true;
+
         
-        $routes = \App\Models\Connection::findDirectRoute($start, $end);
-        
-        // Jeśli brak tras bezpośrednich, szukamy przesiadek
-        if (empty($routes)) {
-            $transferRoutes = \App\Models\Connection::findRouteWithOneTransfer($start, $end);
+        for ($i = 0; $i < count($stops) - 1; $i++) {
+            $startId = $stops[$i];
+            $endId = $stops[$i + 1];
+
+            
+            if ($startId == $endId) continue;
+
+            // Szukamy najpierw połączenia bezpośredniego
+            $routes = \App\Models\Connection::findDirectRoute($startId, $endId);
+
+            if (!empty($routes)) {
+                $journeySegments[] = [
+                    'type' => 'direct',
+                    'data' => $routes[0] 
+                ];
+                $totalPrice += $routes[0]['price'];
+            } else {
+                
+                $transferRoutes = \App\Models\Connection::findRouteWithOneTransfer($startId, $endId);
+                
+                if (!empty($transferRoutes)) {
+                    $journeySegments[] = [
+                        'type' => 'transfer',
+                        'data' => $transferRoutes[0]
+                    ];
+                    $totalPrice += $transferRoutes[0]['total_price'];
+                } else {
+                    
+                    $journeySegments[] = [
+                        'type' => 'not_found',
+                        'start' => $startId,
+                        'end' => $endId
+                    ];
+                }
+            }
         }
     }
 
