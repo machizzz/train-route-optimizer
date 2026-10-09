@@ -6,73 +6,80 @@
 
     <title>Optymalizator Tras Kolejowych</title>
 
-    <style>
-        body { font-family: sans-serif; padding: 20px; }
-        select, button { padding: 10px; margin-top: 10px; }
-    </style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
-<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Zaplanuj podróż</h1>
 
-    <h1>Zaplanuj podróż</h1>
-
-    <form action="" method="GET">
-
-        <label for="start">Wybierz stację początkową:</label><br>
-
-        <select name="start" id="start">
-             <?php foreach ($stations as $station): ?>
-                 <option value="<?= $station['id'] ?>" <?= (isset($_GET['start']) && $_GET['start'] == $station['id']) ? 'selected' : '' ?>>
+    <!-- Formularz w stylu karty -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+<form action="" method="GET" class="row g-3 align-items-end">
+    <div class="col-md-4">
+        <label for="start" class="form-label">Wybierz stację początkową:</label>
+        <select name="start" id="start" class="form-select">
+            <?php foreach ($stations as $station): ?>
+                <option value="<?= $station['id'] ?>" <?= (isset($_GET['start']) && $_GET['start'] == $station['id']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($station['name']) ?> (<?= htmlspecialchars($station['country']) ?>)
                 </option>
             <?php endforeach; ?>
-        </select> <br>
+        </select>
+    </div>
 
-        <br>
-
-        <label for="end">Wybierz stację końcową:</label><br>
-
-        <select name="end" id="end">
+    <div class="col-md-4">
+        <label for="end" class="form-label">Wybierz stację końcową:</label>
+        <select name="end" id="end" class="form-select">
             <?php foreach ($stations as $station): ?>
-             <option value="<?= $station['id'] ?>" <?= (isset($_GET['end']) && $_GET['end'] == $station['id']) ? 'selected' : '' ?>>
-                 <?= htmlspecialchars($station['name']) ?> (<?= htmlspecialchars($station['country']) ?>)
-             </option>
+                <option value="<?= $station['id'] ?>" <?= (isset($_GET['end']) && $_GET['end'] == $station['id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($station['name']) ?> (<?= htmlspecialchars($station['country']) ?>)
+                </option>
             <?php endforeach; ?>
-        </select> <br>
+        </select>
+    </div>
 
-        <button type="submit">Szukaj tras</button>
+    <div class="col-md-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">Szukaj tras</button>
+        <a href="index.php" class="btn btn-outline-secondary w-100">Wyczyść</a>
+    </div>
+</form>
+        </div>
+    </div>
 
-    </form>
-
-    <hr>
-
-<?php if ($routes !== null): ?>
-    <h2>Wyniki wyszukiwania:</h2>
-    
-    <?php if (count($routes) > 0): ?>
-        <table border="1" cellpadding="10" style="border-collapse: collapse;">
-            <tr>
-                <th>Stacja początkowa</th>
-                <th>Stacja końcowa</th>
-                <th>Czas odjazdu</th>
-                <th>Czas przyjazdu</th>
-                <th>Cena biletu (PLN)</th>
-            </tr>
-
-            <?php foreach ($routes as $route): ?>
-                <tr>
-                    <td><?= htmlspecialchars($route['price']) ?></td>
-                    <td><?= htmlspecialchars($route['price']) ?></td>
-                    <td><?= htmlspecialchars($route['departure_time']) ?></td>
-                    <td><?= htmlspecialchars($route['arrival_time']) ?></td>
-                    <td><?= htmlspecialchars($route['price']) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-    <?php else: ?>
-        <p>Niestety, nie znaleziono żadnych bezpośrednich połączeń na wybranej trasie.</p>
+    <!-- Tabela wyników -->
+    <?php if ($routes !== null): ?>
+        <h2 class="mb-3">Wyniki wyszukiwania:</h2>
+        
+        <?php if (count($routes) > 0): ?>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered shadow-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Stacja początkowa</th>
+                            <th>Stacja końcowa</th>
+                            <th>Czas odjazdu</th>
+                            <th>Czas przyjazdu</th>
+                            <th>Cena biletu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($routes as $route): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($route['start_station_name']) ?></td>
+                                <td><?= htmlspecialchars($route['end_station_name']) ?></td>
+                                <td><?= htmlspecialchars($route['departure_time']) ?></td>
+                                <td><?= htmlspecialchars($route['arrival_time']) ?></td>
+                                <td><strong><?= htmlspecialchars($route['price']) ?> PLN</strong></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-warning" role="alert">
+                Niestety, nie znaleziono żadnych bezpośrednich połączeń na wybranej trasie.
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
-<?php endif; ?>
-
-</body>
+</div>
 </html>
