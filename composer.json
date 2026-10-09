@@ -1,0 +1,9 @@
+{
+    "name": "niceo/train_route_optimizer",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
