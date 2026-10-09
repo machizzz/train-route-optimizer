@@ -9,16 +9,15 @@ class Database
 {
     private static $connection = null;
 
-    // Prywatny konstruktor blokuje tworzenie wielu instancji (wzorzec Singleton)
     private function __construct() {}
 
     public static function getConnection() 
     {
         if (self::$connection === null) {
             $host = '127.0.0.1';
-            $db_name = 'trains'; // Wpisz tu nazwę swojej bazy danych z phpMyAdmin
+            $db_name = 'trains'; 
             $username = 'root';
-            $password = ''; // W XAMPP domyślnie hasło jest puste
+            $password = ''; 
 
             try {
                 $dsn = "mysql:host=$host;dbname=$db_name;charset=utf8mb4";
